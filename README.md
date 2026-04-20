@@ -32,4 +32,4 @@ Then open the local URL shown by Vercel.
 ## Deployment
 
 Push this folder to a git repository and import it in Vercel.
-`vercel.json` is already configured to run `api/**/*.js` with `nodejs20.x`.
+`vercel.json` uses the official Vercel schema, and API functions in `api/` use the default supported Node.js runtime automatically.
