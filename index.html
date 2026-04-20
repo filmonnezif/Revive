@@ -3,999 +3,2399 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revive — Turn E-Waste Into Cash</title>
+  <title>Revive - In-App E-Waste Marketplace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green: #1a4a2e;
-      --green-mid: #2d7a4f;
-      --green-light: #4db87a;
-      --green-pale: #d4f0e0;
-      --cream: #f5f0e8;
-      --cream-dark: #ede7d8;
-      --charcoal: #141414;
-      --text: #1a1a1a;
-      --text-muted: #5a5a5a;
+      --green-900: #103122;
+      --green-800: #1a4a2e;
+      --green-700: #23663d;
+      --green-500: #41a868;
+      --green-300: #96ddb0;
+      --mint-100: #e8f7ee;
+      --sand-100: #f5f0e8;
+      --sand-200: #ebe4d5;
+      --charcoal: #121713;
+      --ink: #1a1f1b;
+      --muted: #5f6862;
       --white: #ffffff;
-      --wa-green: #25D366;
+      --warning: #d17a00;
+      --blue: #286cb0;
+      --shadow-soft: 0 16px 50px rgba(16, 49, 34, 0.08);
+      --shadow-mid: 0 24px 60px rgba(16, 49, 34, 0.15);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--text);
+      font-family: 'Manrope', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1000px 500px at 85% -80px, rgba(65, 168, 104, 0.22), transparent 60%),
+        radial-gradient(900px 420px at -10% 85%, rgba(150, 221, 176, 0.2), transparent 60%),
+        var(--sand-100);
       overflow-x: hidden;
     }
 
-    /* ── NAV ── */
+    section { scroll-margin-top: 90px; }
+
     nav {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 18px 5%;
+      align-items: center;
+      padding: 16px 5%;
       background: rgba(245, 240, 232, 0.88);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(45, 122, 79, 0.12);
-      transition: background 0.3s;
+      border-bottom: 1px solid rgba(35, 102, 61, 0.16);
     }
 
     .nav-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 22px;
-      color: var(--green);
-      display: flex;
-      align-items: center;
-      gap: 8px;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--green-800);
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
     }
 
     .logo-icon {
-      width: 32px; height: 32px;
-      background: var(--green);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-icon svg { fill: var(--cream); width: 18px; height: 18px; }
-
-    .nav-links {
-      display: flex;
-      gap: 32px;
-      list-style: none;
-    }
-    .nav-links a {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--green); }
-
-    .nav-cta {
-      background: var(--green);
-      color: var(--cream) !important;
-      padding: 10px 22px;
-      border-radius: 100px;
-      font-size: 14px !important;
-      font-weight: 500 !important;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s !important;
-    }
-    .nav-cta:hover { background: var(--green-mid) !important; transform: translateY(-1px); }
-
-    /* ── HERO ── */
-    #hero {
-      min-height: 100vh;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, var(--green-800), var(--green-500));
       display: flex;
       align-items: center;
-      padding: 120px 5% 80px;
-      position: relative;
-      overflow: hidden;
+      justify-content: center;
     }
 
-    .hero-bg-circle {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(77,184,122,0.18) 0%, transparent 70%);
-      pointer-events: none;
+    .logo-icon svg { width: 18px; height: 18px; fill: var(--sand-100); }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 26px;
     }
-    .hero-bg-circle.c1 { width: 600px; height: 600px; top: -100px; right: -100px; }
-    .hero-bg-circle.c2 { width: 400px; height: 400px; bottom: -50px; left: -80px; }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--green-800); }
+
+    .nav-cta {
+      background: var(--green-800);
+      color: var(--sand-100) !important;
+      padding: 10px 20px;
+      border-radius: 999px;
+      box-shadow: 0 6px 20px rgba(35, 102, 61, 0.3);
+    }
+
+    #hero {
+      min-height: 100vh;
+      padding: 118px 5% 78px;
+      position: relative;
+    }
 
     .hero-grid {
+      max-width: 1180px;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 60px;
       align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
     }
 
     .hero-tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: var(--green-pale);
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 100px;
-      margin-bottom: 24px;
-      letter-spacing: 0.04em;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: var(--mint-100);
+      color: var(--green-700);
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      font-weight: 700;
       text-transform: uppercase;
+      margin-bottom: 24px;
     }
-    .hero-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--green-light); display: inline-block; }
+
+    .hero-tag i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green-500);
+      display: inline-block;
+    }
 
     .hero-title {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(42px, 5.5vw, 72px);
+      font-size: clamp(42px, 6vw, 74px);
+      line-height: 1.02;
       font-weight: 800;
-      line-height: 1.05;
       color: var(--charcoal);
       margin-bottom: 24px;
     }
-    .hero-title .accent {
-      color: var(--green-mid);
-      position: relative;
-    }
+
+    .hero-title span { color: var(--green-700); }
 
     .hero-sub {
+      max-width: 500px;
+      color: var(--muted);
       font-size: 17px;
-      line-height: 1.7;
-      color: var(--text-muted);
-      max-width: 460px;
-      margin-bottom: 40px;
-      font-weight: 300;
+      line-height: 1.75;
+      margin-bottom: 36px;
+      font-weight: 400;
     }
 
     .hero-actions {
       display: flex;
-      gap: 14px;
       flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 38px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost {
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s, color 0.2s;
     }
 
     .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--wa-green);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      padding: 14px 28px;
-      border-radius: 100px;
-      text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 24px rgba(37,211,102,0.3);
+      background: linear-gradient(135deg, var(--green-700), var(--green-500));
+      color: var(--white);
+      padding: 14px 24px;
+      box-shadow: 0 14px 28px rgba(35, 102, 61, 0.24);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,211,102,0.4); }
-    .btn-primary svg { width: 20px; height: 20px; fill: #fff; }
+
+    .btn-primary:hover { transform: translateY(-2px); }
 
     .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
       background: transparent;
-      color: var(--green);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      padding: 14px 24px;
-      border-radius: 100px;
-      border: 1.5px solid var(--green);
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s;
+      color: var(--green-800);
+      border: 1.5px solid rgba(35, 102, 61, 0.5);
+      padding: 14px 22px;
     }
-    .btn-secondary:hover { background: var(--green); color: var(--cream); }
 
-    /* hero stats */
+    .btn-secondary:hover {
+      background: var(--green-800);
+      color: var(--sand-100);
+    }
+
+    .btn-ghost {
+      background: var(--mint-100);
+      color: var(--green-800);
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .btn-ghost:hover { background: #d6f0e0; }
+
     .hero-stats {
+      border-top: 1px solid rgba(35, 102, 61, 0.2);
+      padding-top: 24px;
       display: flex;
       gap: 28px;
-      margin-top: 52px;
-      padding-top: 32px;
-      border-top: 1px solid rgba(45,122,79,0.15);
+      flex-wrap: wrap;
     }
-    .stat-item { }
+
     .stat-num {
       font-family: 'Syne', sans-serif;
       font-size: 28px;
-      font-weight: 800;
-      color: var(--green);
+      color: var(--green-700);
       line-height: 1;
-    }
-    .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-weight: 300; }
-
-    /* Hero visual */
-    .hero-visual {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
+      font-weight: 800;
     }
 
-    .phone-mockup {
-      width: 240px;
-      background: var(--charcoal);
-      border-radius: 40px;
-      padding: 14px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06);
-      position: relative;
-      z-index: 2;
-    }
-    .phone-notch {
-      width: 80px; height: 24px;
-      background: var(--charcoal);
-      border-radius: 0 0 20px 20px;
-      margin: 0 auto 10px;
-      position: relative;
-      z-index: 3;
-    }
-    .phone-screen {
-      background: #075e54;
-      border-radius: 28px;
-      overflow: hidden;
-      min-height: 420px;
-    }
-    .wa-bar {
-      background: #075e54;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .wa-ava {
-      width: 30px; height: 30px;
-      background: var(--wa-green);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .wa-bar-name { font-size: 13px; font-weight: 500; color: #fff; line-height: 1.2; }
-    .wa-bar-status { font-size: 10px; color: rgba(255,255,255,0.65); }
-    .wa-msgs {
-      background: #e5ddd5;
-      padding: 10px 8px;
-      min-height: 340px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .wm {
-      max-width: 85%;
-      padding: 6px 9px;
-      border-radius: 7px;
-      font-size: 10.5px;
-      line-height: 1.45;
-      color: #111;
-    }
-    .wm.r { background: #fff; align-self: flex-start; border-top-left-radius: 2px; }
-    .wm.s { background: #dcf8c6; align-self: flex-end; border-top-right-radius: 2px; }
-    .wm-time { font-size: 8.5px; color: rgba(0,0,0,0.4); text-align: right; margin-top: 2px; }
-    .wm-quote { background: #e8f5e9; border-left: 2px solid #2e7d32; padding: 4px 6px; border-radius: 3px; margin-top: 3px; font-size: 10px; line-height: 1.5; }
-    .wm-quote strong { color: #1b5e20; font-size: 13px; display: block; }
-
-    .float-badge {
-      position: absolute;
-      background: var(--white);
-      border-radius: 14px;
-      padding: 10px 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    .stat-label {
+      margin-top: 4px;
+      color: var(--muted);
       font-size: 12px;
       font-weight: 500;
+    }
+
+    .hero-visual {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-preview {
+      width: min(430px, 100%);
+      border-radius: 26px;
+      background: #0f2f22;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+      box-shadow: var(--shadow-mid);
+      color: #effaf2;
+    }
+
+    .app-preview-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .app-preview-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .app-preview-chip {
+      font-size: 11px;
+      color: #103122;
+      background: #9de0b6;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .app-preview-body { padding: 14px; display: grid; gap: 10px; }
+
+    .preview-msg {
+      max-width: 88%;
+      font-size: 12px;
+      line-height: 1.6;
+      border-radius: 12px;
+      padding: 10px 11px;
+    }
+
+    .preview-msg.bot {
+      justify-self: start;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .preview-msg.user {
+      justify-self: end;
+      color: #103122;
+      background: #9de0b6;
+    }
+
+    .preview-offer {
+      margin-top: 6px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 8px 10px;
+    }
+
+    .preview-offer strong {
+      display: block;
+      margin-top: 3px;
+      font-family: 'Syne', sans-serif;
+      font-size: 19px;
+      color: #b7f6cc;
+    }
+
+    .float-pill {
+      position: absolute;
+      background: var(--white);
+      border-radius: 13px;
+      padding: 10px 13px;
+      box-shadow: var(--shadow-soft);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green-800);
       white-space: nowrap;
     }
-    .float-badge.b1 { top: 40px; right: -50px; color: var(--green); }
-    .float-badge.b2 { bottom: 80px; left: -60px; color: #e65100; }
-    .float-badge .fb-icon { font-size: 16px; margin-right: 4px; }
 
-    /* ── HOW IT WORKS ── */
+    .float-pill.top { top: 48px; right: -20px; }
+    .float-pill.bottom { left: -24px; bottom: 40px; color: #934f00; }
+
     #how {
-      padding: 100px 5%;
-      background: var(--green);
+      padding: 94px 5%;
+      background: linear-gradient(160deg, #143c2a, #0f3122 45%, #0f2b1f 100%);
+      color: var(--sand-100);
       position: relative;
       overflow: hidden;
     }
-    #how::before {
-      content: '';
-      position: absolute;
-      top: -60px; left: 50%;
-      transform: translateX(-50%);
-      width: 200px; height: 120px;
-      background: var(--cream);
-      clip-path: ellipse(50% 50% at 50% 100%);
-    }
+
+    .container { max-width: 1120px; margin: 0 auto; }
 
     .section-label {
       font-size: 11px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      font-weight: 500;
+      font-weight: 700;
+      color: var(--green-300);
       margin-bottom: 14px;
     }
-    .section-label.light { color: var(--green-light); }
-    .section-label.dark { color: var(--green-mid); }
 
     .section-title {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(32px, 4vw, 52px);
-      font-weight: 800;
+      font-size: clamp(30px, 4vw, 52px);
       line-height: 1.1;
-      margin-bottom: 60px;
+      font-weight: 800;
+      margin-bottom: 18px;
     }
-    .section-title.light { color: var(--cream); }
-    .section-title.dark { color: var(--charcoal); }
+
+    .section-sub {
+      color: rgba(235, 255, 242, 0.72);
+      font-size: 15px;
+      max-width: 640px;
+      line-height: 1.8;
+      margin-bottom: 46px;
+    }
 
     .steps-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      max-width: 1100px;
-      margin: 0 auto;
+      gap: 14px;
     }
 
     .step-card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 36px 30px;
-      position: relative;
-      transition: background 0.25s, transform 0.25s;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 28px;
+      transition: transform 0.2s, background 0.2s;
     }
-    .step-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.1);
+    }
 
     .step-num {
       font-family: 'Syne', sans-serif;
-      font-size: 64px;
-      font-weight: 800;
-      color: rgba(255,255,255,0.08);
+      font-size: 54px;
+      color: rgba(255, 255, 255, 0.14);
       line-height: 1;
-      margin-bottom: 20px;
+      margin-bottom: 14px;
     }
-
-    .step-icon-wrap {
-      width: 52px; height: 52px;
-      background: var(--green-light);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
-    }
-    .step-icon-wrap svg { fill: var(--green); width: 24px; height: 24px; }
 
     .step-title {
       font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--cream);
-      margin-bottom: 10px;
-    }
-    .step-desc { font-size: 14px; color: rgba(245,240,232,0.65); line-height: 1.7; font-weight: 300; }
-
-    /* ── WHY REVIVE ── */
-    #why {
-      padding: 100px 5%;
-      background: var(--cream);
+      font-size: 21px;
+      margin-bottom: 8px;
+      color: #f4fff7;
     }
 
-    .why-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-      max-width: 1100px;
+    .step-desc {
+      font-size: 14px;
+      line-height: 1.75;
+      color: rgba(244, 255, 247, 0.7);
+    }
+
+    #quote {
+      padding: 95px 5%;
+      background: transparent;
+    }
+
+    .quote-wrap {
+      max-width: 1120px;
       margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: start;
     }
 
-    .why-cards {
+    .surface {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--sand-200);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .quote-panel {
+      padding: 34px;
+    }
+
+    .quote-header p {
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .form-grid {
+      margin-top: 24px;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
 
-    .why-card {
-      background: var(--white);
-      border: 1px solid var(--cream-dark);
-      border-radius: 16px;
-      padding: 24px 20px;
-      transition: transform 0.2s, box-shadow 0.2s;
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: span 2; }
+
+    .form-group label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
     }
-    .why-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.07); }
-    .why-card.tall { grid-column: span 2; display: flex; gap: 20px; align-items: flex-start; }
 
-    .why-icon {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      margin-bottom: 14px;
+    .form-group select,
+    .form-group input,
+    .form-group textarea {
+      border: 1.5px solid var(--sand-200);
+      background: #faf8f4;
+      border-radius: 10px;
+      font-family: 'Manrope', sans-serif;
+      color: var(--ink);
+      padding: 12px 13px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+      outline: none;
+      width: 100%;
     }
-    .why-icon svg { width: 22px; height: 22px; }
-    .why-icon.g { background: var(--green-pale); }
-    .why-icon.g svg { fill: var(--green); }
-    .why-icon.o { background: #fff3e0; }
-    .why-icon.o svg { fill: #e65100; }
-    .why-icon.b { background: #e3f2fd; }
-    .why-icon.b svg { fill: #1565c0; }
 
-    .why-card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
-    .why-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; font-weight: 300; }
+    .form-group textarea { min-height: 86px; resize: vertical; }
 
-    .why-content .section-label { margin-bottom: 14px; }
-    .why-content .section-title { margin-bottom: 20px; }
-    .why-content p {
-      font-size: 16px;
-      color: var(--text-muted);
+    .form-group select:focus,
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--green-700);
+    }
+
+    .quote-actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-form {
+      border: none;
+      cursor: pointer;
+      background: var(--green-800);
+      color: var(--sand-100);
+      padding: 13px 20px;
+      border-radius: 11px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-form:hover {
+      background: var(--green-700);
+      transform: translateY(-1px);
+    }
+
+    .quote-pill {
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green-800);
+      background: var(--mint-100);
+    }
+
+    .quote-result {
+      margin-top: 18px;
+      display: none;
+      border-radius: var(--radius-md);
+      border: 1px solid #c8eecf;
+      background: #f0fbf4;
+      padding: 20px 22px;
+    }
+
+    .quote-result .price-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 700;
+      color: var(--green-700);
+    }
+
+    .quote-result .price-value {
+      margin-top: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 44px;
+      line-height: 1;
+      color: var(--green-800);
+      font-weight: 800;
+    }
+
+    .quote-result .price-sub {
+      margin-top: 8px;
+      color: var(--green-700);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .quote-notes {
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .quote-side {
+      padding: 30px;
+      background: linear-gradient(165deg, #133825, #143f2a 45%, #1a4a2e 100%);
+      color: #ebfff1;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-mid);
+      position: sticky;
+      top: 95px;
+    }
+
+    .quote-side h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+
+    .quote-side p {
+      color: rgba(235, 255, 241, 0.78);
+      font-size: 14px;
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+
+    .mini-list {
+      list-style: none;
+      display: grid;
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    .mini-list li {
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(235, 255, 241, 0.9);
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .mini-list li::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      position: absolute;
+      left: 0;
+      top: 7px;
+      background: #8fd9a8;
+    }
+
+    #app {
+      padding: 95px 5%;
+      background: #eff6f0;
+      border-top: 1px solid #dbeadf;
+      border-bottom: 1px solid #dbeadf;
+    }
+
+    .app-head {
+      max-width: 1120px;
+      margin: 0 auto 30px;
+    }
+
+    .app-head .section-label { color: var(--green-700); }
+
+    .app-head .section-title {
+      margin-bottom: 12px;
+      color: var(--charcoal);
+    }
+
+    .app-head p {
+      max-width: 700px;
+      font-size: 15px;
+      color: var(--muted);
       line-height: 1.8;
-      font-weight: 300;
-      margin-bottom: 28px;
     }
 
-    /* ── STATS ── */
-    #stats {
-      padding: 80px 5%;
-      background: var(--charcoal);
+    .app-shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: start;
     }
-    .stats-inner {
-      max-width: 1100px;
+
+    .chat-panel,
+    .tracker-panel {
+      border-radius: var(--radius-lg);
+      border: 1px solid #d6e6da;
+      background: var(--white);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    .chat-head,
+    .tracker-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid #ebf1ec;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-head h3,
+    .tracker-head h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 21px;
+      color: var(--charcoal);
+    }
+
+    .chat-status,
+    .tracker-status {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--green-700);
+      background: var(--mint-100);
+      padding: 6px 9px;
+      border-radius: 999px;
+    }
+
+    .quick-actions {
+      padding: 14px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid #ebf1ec;
+      background: #f8fbf8;
+    }
+
+    .chat-log {
+      min-height: 320px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: linear-gradient(180deg, #fbfdfb, #f3f8f4 82%);
+    }
+
+    .chat-bubble {
+      max-width: 86%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      line-height: 1.6;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: #d8f2e0;
+      color: #113624;
+      border-top-right-radius: 4px;
+    }
+
+    .chat-bubble.assistant,
+    .chat-bubble.system {
+      align-self: flex-start;
+      background: #ffffff;
+      color: #203227;
+      border: 1px solid #deebe1;
+      border-top-left-radius: 4px;
+    }
+
+    .chat-time {
+      display: block;
+      margin-top: 5px;
+      font-size: 10px;
+      color: #6f7b73;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    #chat-form {
+      padding: 14px;
+      border-top: 1px solid #ebf1ec;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    #chat-form input {
+      border: 1.5px solid #d9e7dd;
+      border-radius: 11px;
+      padding: 11px 12px;
+      font-size: 13px;
+      outline: none;
+      background: #fafcfb;
+    }
+
+    #chat-form input:focus { border-color: var(--green-700); }
+
+    #chat-form button {
+      border: none;
+      border-radius: 11px;
+      padding: 0 16px;
+      background: var(--green-800);
+      color: var(--sand-100);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tracker-body { padding: 22px; }
+
+    .tracker-summary {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+
+    .tracker-steps {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tracker-step {
+      border-radius: 12px;
+      border: 1px solid #dfe9e2;
+      background: #f8fbf8;
+      padding: 12px 13px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5f6d63;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+
+    .tracker-step span {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid #c9dacc;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .tracker-step.active {
+      border-color: #b8dfc3;
+      background: #eefaf2;
+      color: var(--green-800);
+    }
+
+    .tracker-step.active span {
+      background: var(--green-700);
+      border-color: var(--green-700);
+      color: var(--white);
+    }
+
+    .tracker-step.current {
+      border-color: #99cca9;
+      box-shadow: inset 0 0 0 1px #99cca9;
+    }
+
+    .tracker-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tracker-actions button {
+      border: 1px solid #d0dfd4;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 11px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #325542;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tracker-actions button:hover:not(:disabled) {
+      background: #eef8f1;
+    }
+
+    .tracker-actions button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .booking-card {
+      border-radius: 12px;
+      border: 1px solid #d8e7dc;
+      background: #f8fbf9;
+      padding: 14px;
+      display: none;
+      line-height: 1.7;
+      font-size: 13px;
+      color: #3f4f45;
+    }
+
+    .booking-card strong {
+      color: var(--green-800);
+      font-size: 13px;
+    }
+
+    #meetings {
+      padding: 95px 5%;
+      background: #f9f7f2;
+    }
+
+    .meeting-head {
+      max-width: 1120px;
+      margin: 0 auto 28px;
+    }
+
+    .meeting-head .section-label { color: var(--green-700); }
+
+    .meeting-head p {
+      max-width: 740px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .meeting-grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .meeting-panel,
+    .map-panel {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--sand-200);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    .meeting-panel { padding: 28px; }
+
+    .meeting-panel h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .meeting-panel > p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .meeting-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .meeting-confirm {
+      margin-top: 16px;
+      display: none;
+      border: 1px solid #bfe0c8;
+      border-radius: 12px;
+      background: #eefaf2;
+      padding: 14px;
+      color: #1c402c;
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .map-panel-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid #edf2ee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .map-panel-head h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      color: var(--charcoal);
+    }
+
+    .map-tip {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 700;
+      color: var(--green-700);
+    }
+
+    #meeting-map { height: 440px; width: 100%; }
+
+    .map-legend {
+      padding: 12px 18px 16px;
+      border-top: 1px solid #edf2ee;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .legend-campus { background: #1f6d40; }
+    .legend-point { background: #286cb0; }
+
+    #why {
+      padding: 95px 5%;
+      background: transparent;
+    }
+
+    .why-grid {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .why-copy .section-label { color: var(--green-700); }
+
+    .why-copy .section-title {
+      margin-bottom: 14px;
+      color: var(--charcoal);
+    }
+
+    .why-copy p {
+      color: var(--muted);
+      line-height: 1.85;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    .why-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .why-card {
+      border-radius: 14px;
+      border: 1px solid var(--sand-200);
+      background: var(--white);
+      padding: 20px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .why-card.tall { grid-column: span 2; }
+
+    .why-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      margin-bottom: 6px;
+      color: var(--charcoal);
+    }
+
+    .why-card p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    #stats {
+      padding: 82px 5%;
+      background: var(--charcoal);
+      color: #eff8f2;
+    }
+
+    .stats-wrap {
+      max-width: 1120px;
       margin: 0 auto;
       text-align: center;
     }
+
+    .stats-wrap .section-label {
+      color: var(--green-300);
+      margin-bottom: 14px;
+    }
+
+    .stats-wrap .section-title { margin-bottom: 36px; }
+
     .stats-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 2px;
-      margin-top: 50px;
+      gap: 10px;
     }
+
     .stat-block {
-      padding: 32px 20px;
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      transition: background 0.2s;
+      padding: 24px 18px;
+      background: rgba(255, 255, 255, 0.03);
     }
-    .stat-block:hover { background: rgba(255,255,255,0.04); }
+
     .stat-big {
       font-family: 'Syne', sans-serif;
-      font-size: 48px;
-      font-weight: 800;
-      color: var(--green-light);
+      font-size: 44px;
       line-height: 1;
+      color: #8cd8a6;
       margin-bottom: 8px;
-    }
-    .stat-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.5; font-weight: 300; }
-    .stats-inner .section-title.light { margin-bottom: 0; }
-
-    /* ── GET QUOTE ── */
-    #quote {
-      padding: 100px 5%;
-      background: var(--cream);
-    }
-    .quote-inner {
-      max-width: 680px;
-      margin: 0 auto;
-      text-align: center;
-    }
-    .quote-inner .section-title { margin-bottom: 12px; }
-    .quote-inner > p {
-      color: var(--text-muted);
-      font-size: 16px;
-      font-weight: 300;
-      line-height: 1.7;
-      margin-bottom: 44px;
-    }
-
-    .quote-form {
-      background: var(--white);
-      border: 1px solid var(--cream-dark);
-      border-radius: 24px;
-      padding: 40px;
-      text-align: left;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 12px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
-    .form-group select, .form-group input {
-      padding: 12px 14px;
-      border: 1.5px solid var(--cream-dark);
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      color: var(--text);
-      background: var(--cream);
-      outline: none;
-      transition: border-color 0.2s;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
-    }
-    .form-group select:focus, .form-group input:focus { border-color: var(--green-mid); }
-
-    #quote-result {
-      display: none;
-      background: var(--green-pale);
-      border: 1.5px solid var(--green-light);
-      border-radius: 14px;
-      padding: 20px 24px;
-      margin-top: 20px;
-      text-align: center;
-    }
-    #quote-result .qr-label { font-size: 12px; color: var(--green); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    #quote-result .qr-price {
-      font-family: 'Syne', sans-serif;
-      font-size: 42px;
       font-weight: 800;
-      color: var(--green);
-      line-height: 1;
     }
-    #quote-result .qr-sub { font-size: 13px; color: var(--green-mid); margin-top: 6px; font-weight: 300; }
 
-    .btn-quote {
-      width: 100%;
-      padding: 16px;
-      background: var(--green);
-      color: var(--cream);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
+    .stat-desc {
+      color: rgba(239, 248, 242, 0.66);
+      line-height: 1.6;
+      font-size: 13px;
       font-weight: 500;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      margin-top: 16px;
     }
-    .btn-quote:hover { background: var(--green-mid); transform: translateY(-1px); }
 
-    .btn-wa-full {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 16px;
-      background: var(--wa-green);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.15s;
-      margin-top: 10px;
-      box-shadow: 0 4px 20px rgba(37,211,102,0.25);
-    }
-    .btn-wa-full:hover { background: #1da851; transform: translateY(-1px); }
-    .btn-wa-full svg { fill: #fff; width: 20px; height: 20px; }
-
-    /* ── FOOTER ── */
     footer {
-      background: var(--green);
-      padding: 60px 5% 36px;
-      color: var(--cream);
+      background: #112f22;
+      color: #eef8f1;
+      padding: 58px 5% 34px;
     }
+
     .footer-grid {
+      max-width: 1120px;
+      margin: 0 auto 36px;
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
-      gap: 60px;
-      max-width: 1100px;
-      margin: 0 auto 50px;
+      gap: 30px;
     }
-    .footer-brand .nav-logo { color: var(--cream); margin-bottom: 14px; display: inline-flex; }
-    .footer-brand p { font-size: 13px; color: rgba(245,240,232,0.55); line-height: 1.7; font-weight: 300; max-width: 280px; }
-    .footer-col h4 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--cream); }
-    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-col ul li a { color: rgba(245,240,232,0.55); text-decoration: none; font-size: 13px; font-weight: 300; transition: color 0.2s; }
-    .footer-col ul li a:hover { color: var(--cream); }
-    .footer-bottom {
-      max-width: 1100px; margin: 0 auto;
-      padding-top: 24px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 12px;
-      color: rgba(245,240,232,0.4);
-    }
-    .footer-bottom span { color: var(--green-light); }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .footer-brand .nav-logo {
+      color: #eef8f1;
+      margin-bottom: 12px;
     }
+
+    .footer-brand p {
+      max-width: 320px;
+      color: rgba(238, 248, 241, 0.65);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: #effaf2;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .footer-col a {
+      text-decoration: none;
+      color: rgba(238, 248, 241, 0.62);
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: #effaf2; }
+
+    .footer-bottom {
+      max-width: 1120px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: rgba(238, 248, 241, 0.52);
+      font-size: 12px;
+    }
+
+    .footer-bottom strong { color: #9de0b6; }
+
     .fade-up {
       opacity: 0;
-      animation: fadeUp 0.7s ease forwards;
+      transform: translateY(26px);
+      animation: fadeUp 0.75s ease forwards;
     }
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.22s; }
-    .delay-3 { animation-delay: 0.36s; }
-    .delay-4 { animation-delay: 0.5s; }
-    .delay-5 { animation-delay: 0.64s; }
 
-    /* ── MOBILE ── */
-    @media (max-width: 900px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      .hero-visual { display: none; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: 1fr 1fr; }
-      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
-      .form-row { grid-template-columns: 1fr; }
-      nav .nav-links { display: none; }
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.34s; }
+    .delay-4 { animation-delay: 0.48s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @media (max-width: 500px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .why-cards { grid-template-columns: 1fr; }
-      .why-card.tall { flex-direction: column; }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .quote-wrap,
+      .app-shell,
+      .meeting-grid,
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quote-side { position: static; }
+      .hero-visual { order: -1; margin-bottom: 10px; }
+      .float-pill.top { right: 8px; }
+      .float-pill.bottom { left: 8px; bottom: 12px; }
+      #meeting-map { height: 380px; }
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .steps-grid,
+      .stats-row,
+      .footer-grid,
+      .form-grid,
+      .tracker-actions,
+      .why-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full { grid-column: span 1; }
+      #chat-form { grid-template-columns: 1fr; }
+      .chat-log { min-height: 280px; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8L2 12c0-5.52 4.48-10 10-10 2.76 0 5.26 1.12 7.07 2.93L21 3v4h-4l.65-.65zM12 20c4.42 0 7.99-3.58 7.99-8L22 12c0 5.52-4.48 10-10 10-2.76 0-5.26-1.12-7.07-2.93L3 21v-4h4l-.65.65A7.958 7.958 0 0012 20z"/></svg>
-    </div>
-    Revive
-  </a>
-  <ul class="nav-links">
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#why">Why Revive</a></li>
-    <li><a href="#stats">Impact</a></li>
-    <li><a href="#quote" class="nav-cta">Get a quote</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-bg-circle c1"></div>
-  <div class="hero-bg-circle c2"></div>
-
-  <div class="hero-grid">
-    <div class="hero-left">
-      <div class="hero-tag fade-up delay-1"><span></span> UAE's campus e-waste solution</div>
-      <h1 class="hero-title fade-up delay-2">
-        Turn your<br/>old phone into<br/><span class="accent">instant cash.</span>
-      </h1>
-      <p class="hero-sub fade-up delay-3">
-        Drop us a WhatsApp. We come to your campus, wipe your data on the spot, and pay you cash immediately. No strangers. No hassle. No data leaks.
-      </p>
-      <div class="hero-actions fade-up delay-4">
-        <a href="https://wa.me/971000000000?text=Hi%20Revive!%20I%20want%20to%20sell%20my%20old%20phone" class="btn-primary" target="_blank">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.557 4.117 1.532 5.849L.072 23.928l6.218-1.432A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.788 9.788 0 01-5.012-1.381l-.36-.214-3.728.859.882-3.618-.235-.372A9.783 9.783 0 012.182 12c0-5.415 4.404-9.818 9.818-9.818 5.415 0 9.818 4.403 9.818 9.818 0 5.414-4.403 9.818-9.818 9.818z"/></svg>
-          Chat on WhatsApp
-        </a>
-        <a href="#quote" class="btn-secondary">Get a quote ↓</a>
+  <nav>
+    <a class="nav-logo" href="#hero">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8L2 12c0-5.52 4.48-10 10-10 2.76 0 5.26 1.12 7.07 2.93L21 3v4h-4l.65-.65zM12 20c4.42 0 7.99-3.58 7.99-8L22 12c0 5.52-4.48 10-10 10-2.76 0-5.26-1.12-7.07-2.93L3 21v-4h4l-.65.65A7.958 7.958 0 0012 20z"/></svg>
       </div>
-      <div class="hero-stats fade-up delay-5">
-        <div class="stat-item">
-          <div class="stat-num">3 min</div>
-          <div class="stat-label">Full process time</div>
+      Revive
+    </a>
+    <ul class="nav-links">
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#quote">Quote</a></li>
+      <li><a href="#app">In-App Concierge</a></li>
+      <li><a href="#meetings">Meetings</a></li>
+      <li><a href="#stats">Impact</a></li>
+      <li><a class="nav-cta" href="#quote">Start App Flow</a></li>
+    </ul>
+  </nav>
+
+  <section id="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-tag fade-up delay-1"><i></i> UAE campus e-waste platform</div>
+        <h1 class="hero-title fade-up delay-2">Turn old devices into cash.<br /><span>All inside the Revive app.</span></h1>
+        <p class="hero-sub fade-up delay-3">
+          Revive is now fully standalone: instant quote engine, in-app concierge chat, campus meeting scheduler, and live map coordination.
+          No external chat apps required.
+        </p>
+        <div class="hero-actions fade-up delay-4">
+          <a href="#quote" class="btn-primary">Get instant quote</a>
+          <a href="#app" class="btn-secondary">Open in-app concierge</a>
+          <a href="#meetings" class="btn-secondary">Plan campus meetup</a>
         </div>
-        <div class="stat-item">
-          <div class="stat-num">100%</div>
-          <div class="stat-label">Data wiped, certified</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">AED 550+</div>
-          <div class="stat-label">Avg. per device profit</div>
+        <div class="hero-stats fade-up delay-4">
+          <div>
+            <div class="stat-num">3 min</div>
+            <div class="stat-label">Quote to booking flow</div>
+          </div>
+          <div>
+            <div class="stat-num">100%</div>
+            <div class="stat-label">NIST data wipe workflow</div>
+          </div>
+          <div>
+            <div class="stat-num">AED 550+</div>
+            <div class="stat-label">Average recovered value</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="hero-visual">
-      <div style="position:relative;">
-        <div class="float-badge b1"><span class="fb-icon">🔒</span> Data wiped</div>
-        <div class="float-badge b2"><span class="fb-icon">💵</span> AED 420 paid!</div>
-        <div class="phone-mockup">
-          <div class="phone-notch"></div>
-          <div class="phone-screen">
-            <div class="wa-bar">
-              <div class="wa-ava">R♻</div>
-              <div>
-                <div class="wa-bar-name">Revive ♻</div>
-                <div class="wa-bar-status">online</div>
+      <div class="hero-visual">
+        <div class="float-pill top">Standalone in-app support</div>
+        <div class="float-pill bottom">Campus map + scheduling</div>
+        <div class="app-preview">
+          <div class="app-preview-head">
+            <div class="app-preview-title">Revive App Concierge</div>
+            <div class="app-preview-chip">Live</div>
+          </div>
+          <div class="app-preview-body">
+            <div class="preview-msg bot">Hi Sarah. Ready to sell your phone? I can quote, schedule pickup, and track wipe certification here.</div>
+            <div class="preview-msg user">iPhone 13 Pro, good condition</div>
+            <div class="preview-msg bot">
+              Great. Instant estimate generated.
+              <div class="preview-offer">
+                iPhone 13 Pro - Good
+                <strong>AED 610</strong>
+                Quote locked for 24 hours.
               </div>
             </div>
-            <div class="wa-msgs">
-              <div class="wm r">Hey! Welcome to Revive ♻ What device are you selling?<div class="wm-time">09:14</div></div>
-              <div class="wm s">iPhone 12, good condition<div class="wm-time">09:14</div></div>
-              <div class="wm r">
-                Got it! Here's your offer:
-                <div class="wm-quote">
-                  📦 iPhone 12 — Good<br/>
-                  <strong>AED 420 cash</strong>
-                  Data wiped + certificate ✉
-                </div>
-                <div class="wm-time">09:15</div>
-              </div>
-              <div class="wm s">Let's do it! 🙌<div class="wm-time">09:15</div></div>
-              <div class="wm r">Meetup confirmed — HCT tomorrow 12PM. See you then! ♻<div class="wm-time">09:15</div></div>
-            </div>
+            <div class="preview-msg user">Book me at AUS tomorrow 12:30</div>
+            <div class="preview-msg bot">Booked. Meet at AUS Main Library Gate. Technician assigned in-app.</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div style="max-width:1100px; margin:0 auto;">
-    <div class="section-label light">Process</div>
-    <div class="section-title light">3 steps. Under 3 minutes.</div>
-    <div class="steps-grid">
-
-      <div class="step-card">
-        <div class="step-num">01</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.557 4.117 1.532 5.849L.072 23.928l6.218-1.432A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.788 9.788 0 01-5.012-1.381l-.36-.214-3.728.859.882-3.618-.235-.372A9.783 9.783 0 012.182 12c0-5.415 4.404-9.818 9.818-9.818 5.415 0 9.818 4.403 9.818 9.818 0 5.414-4.403 9.818-9.818 9.818z"/></svg>
-        </div>
-        <div class="step-title">Message us on WhatsApp</div>
-        <div class="step-desc">Text "Sell" to our Revive number. Tell us your device model and condition. We reply with a cash quote in under 60 seconds.</div>
-      </div>
-
-      <div class="step-card">
-        <div class="step-num">02</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
-        </div>
-        <div class="step-title">Meet us on campus</div>
-        <div class="step-desc">We schedule a 10-minute on-campus meetup at a time that suits you. We run a certified NIST data wipe on your device right in front of you.</div>
-      </div>
-
-      <div class="step-card">
-        <div class="step-num">03</div>
-        <div class="step-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-        </div>
-        <div class="step-title">Get paid instantly</div>
-        <div class="step-desc">Cash in hand the moment the wipe is done. You also receive a Digital Certificate of Destruction via email as proof your data is gone for good.</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- WHY REVIVE -->
-<section id="why">
-  <div class="why-grid">
-    <div class="why-content">
-      <div class="section-label dark">Why us</div>
-      <h2 class="section-title dark">We solve what others ignore.</h2>
-      <p>Standard recycling bins offer zero security and zero reward. Online classifieds take days and involve meeting strangers. Revive is the only solution built for how students actually live — fast, on campus, and private.</p>
-      <a href="#quote" class="btn-secondary" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">Get my quote →</a>
-    </div>
-    <div class="why-cards">
-      <div class="why-card">
-        <div class="why-icon g">
-          <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-        </div>
-        <div class="why-card-title">100% Data Secure</div>
-        <div class="why-card-desc">NIST 800-88 certified wipe — the same standard used by government agencies. You get a destruction certificate by email.</div>
-      </div>
-      <div class="why-card">
-        <div class="why-icon o">
-          <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-        </div>
-        <div class="why-card-title">Instant Cash</div>
-        <div class="why-card-desc">No waiting, no PayPal delays. Physical cash handed to you on the spot the moment the wipe is complete.</div>
-      </div>
-      <div class="why-card tall">
-        <div class="why-icon b" style="margin-bottom:0;">
-          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        </div>
-        <div>
-          <div class="why-card-title">On Your Campus</div>
-          <div class="why-card-desc">We come to you. No driving to industrial recycling zones, no mail-in kits. We meet you at HCT, AUS, UAEU, or any campus in the UAE during your lunch break.</div>
-        </div>
+  <section id="how">
+    <div class="container">
+      <div class="section-label">Process</div>
+      <h2 class="section-title">Standalone MVP workflow in 3 steps</h2>
+      <p class="section-sub">
+        This flow is now fully native to Revive: you quote, chat, schedule, and track your transaction without leaving the app.
+      </p>
+      <div class="steps-grid">
+        <article class="step-card">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Generate instant quote</h3>
+          <p class="step-desc">Select brand, model, condition, and battery health. Revive computes an instant estimate and stores it in your request tracker.</p>
+        </article>
+        <article class="step-card">
+          <div class="step-num">02</div>
+          <h3 class="step-title">Use in-app concierge</h3>
+          <p class="step-desc">Ask questions about pricing, data wipe, and pickup logistics in the embedded chat. Every action is logged in one request timeline.</p>
+        </article>
+        <article class="step-card">
+          <div class="step-num">03</div>
+          <h3 class="step-title">Book via campus map</h3>
+          <p class="step-desc">Choose campus, meeting point, date, and time. A booking ID is created instantly and your tracker moves to the scheduled state.</p>
+        </article>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- STATS -->
-<section id="stats">
-  <div class="stats-inner">
-    <div class="section-label" style="color:var(--green-light); letter-spacing:0.1em; text-transform:uppercase; font-size:11px; font-weight:500; margin-bottom:14px;">The problem is real</div>
-    <h2 class="section-title light">UAE students are sitting on a goldmine of e-waste.</h2>
-    <div class="stats-row">
-      <div class="stat-block">
-        <div class="stat-big">83%</div>
-        <div class="stat-desc">of surveyed students said they'd use Revive on campus</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-big">57%</div>
-        <div class="stat-desc">cite data theft fear as their #1 reason for not recycling</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-big">300K+</div>
-        <div class="stat-desc">university students enrolled across UAE campuses</div>
-      </div>
-      <div class="stat-block">
-        <div class="stat-big">AED 628M</div>
-        <div class="stat-desc">total addressable e-waste market in the UAE right now</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- QUOTE -->
-<section id="quote">
-  <div class="quote-inner">
-    <div class="section-label dark">Instant estimate</div>
-    <h2 class="section-title dark">How much is your phone worth?</h2>
-    <p>Pick your device and we'll give you an instant ballpark quote. Then message us on WhatsApp to lock it in and book your campus meetup.</p>
-
-    <div class="quote-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Brand</label>
-          <select id="brand" onchange="updateModels()">
-            <option value="">Select brand...</option>
-            <option value="iphone">iPhone</option>
-            <option value="samsung">Samsung</option>
-            <option value="other">Other Android</option>
-          </select>
+  <section id="quote">
+    <div class="quote-wrap">
+      <div class="quote-panel surface">
+        <div class="quote-header">
+          <div class="section-label" style="color: var(--green-700);">Step 1</div>
+          <h2 class="section-title" style="margin-bottom: 0; color: var(--charcoal);">What is your device worth?</h2>
+          <p>Build an instant quote inside Revive. This value is used by the concierge and meeting scheduler automatically.</p>
         </div>
-        <div class="form-group">
-          <label>Model</label>
-          <select id="model">
-            <option value="">Select model...</option>
-          </select>
+
+        <form id="quote-form" class="form-grid">
+          <div class="form-group">
+            <label for="brand">Brand</label>
+            <select id="brand" required>
+              <option value="">Select brand...</option>
+              <option value="iphone">iPhone</option>
+              <option value="samsung">Samsung</option>
+              <option value="other">Other Android</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="model">Model</label>
+            <select id="model" required>
+              <option value="">Select model...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="condition">Condition</label>
+            <select id="condition" required>
+              <option value="">Select condition...</option>
+              <option value="new">Like new</option>
+              <option value="good">Good (minor wear)</option>
+              <option value="fair">Fair (visible damage)</option>
+              <option value="broken">Broken (not turning on)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="storage">Storage</label>
+            <select id="storage" required>
+              <option value="64">64 GB</option>
+              <option value="128">128 GB</option>
+              <option value="256">256 GB</option>
+              <option value="512">512 GB</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="battery">Battery health</label>
+            <select id="battery" required>
+              <option value="excellent">Excellent (90%+)</option>
+              <option value="good" selected>Good (80-89%)</option>
+              <option value="weak">Weak (below 80%)</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label for="device-notes">Device notes (optional)</label>
+            <textarea id="device-notes" placeholder="Example: Face ID works, no box, charger included."></textarea>
+          </div>
+          <div class="form-group full">
+            <div class="quote-actions">
+              <button type="submit" class="btn-form">Generate instant quote</button>
+              <span class="quote-pill">No external messaging needed</span>
+            </div>
+          </div>
+        </form>
+
+        <div id="quote-result" class="quote-result">
+          <div class="price-label">Estimated offer</div>
+          <div id="quote-price" class="price-value">AED 0</div>
+          <div id="quote-sub" class="price-sub">Ready to be locked with a meeting booking.</div>
+        </div>
+        <p class="quote-notes">Final valuation can adjust slightly after in-person hardware check. Data wipe certificate is always included in successful transactions.</p>
+      </div>
+
+      <aside class="quote-side">
+        <h3>MVP upgrades now live</h3>
+        <p>Revive now includes the core product surface needed for a functional campus resale app.</p>
+        <ul class="mini-list">
+          <li>In-app concierge chat with persistent history</li>
+          <li>Request tracker state from quote to completion</li>
+          <li>Campus meeting scheduling with map awareness</li>
+          <li>Booking confirmation and pickup reference ID</li>
+          <li>Single flow continuity across modules</li>
+        </ul>
+        <a class="btn-secondary" href="#app" style="display: inline-flex; text-decoration: none;">Continue to concierge</a>
+      </aside>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="app-head">
+      <div class="section-label">Step 2</div>
+      <h2 class="section-title">In-app concierge and request tracker</h2>
+      <p>
+        The concierge helps users finish actions without leaving the product, and the tracker gives operational visibility that an MVP needs.
+      </p>
+    </div>
+
+    <div class="app-shell">
+      <div class="chat-panel">
+        <div class="chat-head">
+          <h3>Revive Concierge</h3>
+          <span class="chat-status">In app</span>
+        </div>
+        <div class="quick-actions">
+          <button class="btn-ghost quick-btn" type="button" data-message="How do I improve my quote?">Quote tips</button>
+          <button class="btn-ghost quick-btn" type="button" data-message="How does certified wipe work?">Data wipe info</button>
+          <button class="btn-ghost quick-btn" type="button" data-message="Book my campus meeting">Book meeting</button>
+          <button class="btn-ghost quick-btn" type="button" data-message="What is my current status?">Check status</button>
+        </div>
+        <div id="chat-log" class="chat-log" aria-live="polite"></div>
+        <form id="chat-form">
+          <input id="chat-input" type="text" placeholder="Ask Revive anything about your sale..." maxlength="220" required />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+
+      <div class="tracker-panel">
+        <div class="tracker-head">
+          <h3>My request</h3>
+          <span class="tracker-status" id="tracker-badge">Not started</span>
+        </div>
+        <div class="tracker-body">
+          <p id="tracker-summary" class="tracker-summary">Create your quote to start an active Revive request.</p>
+          <ul class="tracker-steps">
+            <li class="tracker-step" data-step="quoted"><span>1</span>Quote created</li>
+            <li class="tracker-step" data-step="booked"><span>2</span>Meeting booked</li>
+            <li class="tracker-step" data-step="assigned"><span>3</span>Technician assigned</li>
+            <li class="tracker-step" data-step="completed"><span>4</span>Device sold + certificate sent</li>
+          </ul>
+          <div class="tracker-actions">
+            <button id="assign-tech-btn" type="button">Assign technician</button>
+            <button id="complete-request-btn" type="button">Mark complete</button>
+          </div>
+          <div id="booking-card" class="booking-card"></div>
         </div>
       </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label>Condition</label>
-        <select id="condition">
-          <option value="">Select condition...</option>
-          <option value="new">Like new — no scratches</option>
-          <option value="good">Good — minor scratches</option>
-          <option value="fair">Fair — cracked screen</option>
-          <option value="broken">Broken — not turning on</option>
-        </select>
-      </div>
-
-      <div id="quote-result">
-        <div class="qr-label">Your estimated offer</div>
-        <div class="qr-price" id="qr-price">AED 0</div>
-        <div class="qr-sub" id="qr-sub">Cash on the spot · Data wiped & certified</div>
-      </div>
-
-      <button class="btn-quote" onclick="calcQuote()">Calculate my quote</button>
-      <a id="wa-link" class="btn-wa-full" href="https://wa.me/971000000000?text=Hi%20Revive!%20I%20want%20a%20quote" target="_blank">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.557 4.117 1.532 5.849L.072 23.928l6.218-1.432A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.788 9.788 0 01-5.012-1.381l-.36-.214-3.728.859.882-3.618-.235-.372A9.783 9.783 0 012.182 12c0-5.415 4.404-9.818 9.818-9.818 5.415 0 9.818 4.403 9.818 9.818 0 5.414-4.403 9.818-9.818 9.818z"/></svg>
-        Book meetup on WhatsApp
-      </a>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <a href="#" class="nav-logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8L2 12c0-5.52 4.48-10 10-10 2.76 0 5.26 1.12 7.07 2.93L21 3v4h-4l.65-.65zM12 20c4.42 0 7.99-3.58 7.99-8L22 12c0 5.52-4.48 10-10 10-2.76 0-5.26-1.12-7.07-2.93L3 21v-4h4l-.65.65A7.958 7.958 0 0012 20z"/></svg>
+  <section id="meetings">
+    <div class="meeting-head">
+      <div class="section-label">Step 3</div>
+      <h2 class="section-title" style="margin-bottom: 10px; color: var(--charcoal);">Organize meetings with campus maps</h2>
+      <p>
+        Pick a campus and meeting point. The map updates in real time so students and technicians align on the same location, which removes one of the main operational blockers in early-stage logistics.
+      </p>
+    </div>
+
+    <div class="meeting-grid">
+      <div class="meeting-panel">
+        <h3>Book campus meeting</h3>
+        <p>Use your quote and contact details to create a pickup booking ID inside Revive.</p>
+
+        <form id="meeting-form" class="form-grid">
+          <div class="form-group">
+            <label for="full-name">Full name</label>
+            <input id="full-name" type="text" placeholder="Student name" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone number</label>
+            <input id="phone" type="tel" placeholder="05X XXX XXXX" required />
+          </div>
+          <div class="form-group full">
+            <label for="email">Email for data-wipe certificate</label>
+            <input id="email" type="email" placeholder="you@university.edu" required />
+          </div>
+          <div class="form-group">
+            <label for="campus">Campus</label>
+            <select id="campus" required>
+              <option value="">Select campus...</option>
+              <option value="hct-abudhabi">HCT Abu Dhabi</option>
+              <option value="aus-sharjah">AUS Sharjah</option>
+              <option value="uaeu-alain">UAEU Al Ain</option>
+              <option value="ku-abudhabi">Khalifa University Abu Dhabi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="meeting-point">Meeting point</label>
+            <select id="meeting-point" required>
+              <option value="">Select point...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="meeting-date">Date</label>
+            <input id="meeting-date" type="date" required />
+          </div>
+          <div class="form-group">
+            <label for="meeting-time">Time</label>
+            <input id="meeting-time" type="time" required />
+          </div>
+          <div class="form-group full">
+            <label for="meeting-notes">Meeting notes (optional)</label>
+            <textarea id="meeting-notes" placeholder="Example: I am available after class at 12:30 PM."></textarea>
+          </div>
+          <div class="form-group full">
+            <div class="meeting-actions">
+              <button class="btn-form" type="submit">Create meeting booking</button>
+              <span class="quote-pill">Booking and status update happen in-app</span>
+            </div>
+          </div>
+        </form>
+
+        <div id="meeting-confirm" class="meeting-confirm"></div>
+      </div>
+
+      <div class="map-panel">
+        <div class="map-panel-head">
+          <h3>Campus map</h3>
+          <span class="map-tip">Live meeting points</span>
         </div>
-        Revive
-      </a>
-      <p>Turning UAE student e-waste into instant cash — one device at a time. Certified data destruction. Zero hassle.</p>
+        <div id="meeting-map"></div>
+        <div class="map-legend">
+          <span><i class="legend-dot legend-campus"></i>Campus</span>
+          <span><i class="legend-dot legend-point"></i>Recommended meetup point</span>
+        </div>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Product</h4>
-      <ul>
-        <li><a href="#how">How it works</a></li>
-        <li><a href="#why">Why Revive</a></li>
-        <li><a href="#quote">Get a quote</a></li>
-      </ul>
+  </section>
+
+  <section id="why">
+    <div class="why-grid">
+      <div class="why-copy">
+        <div class="section-label">Why this MVP works</div>
+        <h2 class="section-title">You now have the core transactional surface.</h2>
+        <p>
+          The old site depended on external chat to close deals. This version closes the product loop internally: quote generation, in-app communication, geospatial meeting coordination, and lifecycle tracking.
+        </p>
+        <p>
+          That is a stronger MVP foundation for pilot launches because user intent, operational handoff, and conversion happen in one product.
+        </p>
+      </div>
+      <div class="why-cards">
+        <article class="why-card">
+          <h4>Single funnel</h4>
+          <p>No context-switching to third-party messaging means less drop-off from quote to booking.</p>
+        </article>
+        <article class="why-card">
+          <h4>Operational clarity</h4>
+          <p>The tracker provides transparent status, reducing repetitive support questions.</p>
+        </article>
+        <article class="why-card tall">
+          <h4>Campus logistics built in</h4>
+          <p>Map-linked meeting point selection creates a practical dispatch workflow for early stage teams managing on-campus pickups.</p>
+        </article>
+      </div>
     </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="https://wa.me/971000000000" target="_blank">WhatsApp us</a></li>
-        <li><a href="mailto:hello@revive.ae">hello@revive.ae</a></li>
-        <li><a href="#">Instagram</a></li>
-      </ul>
+  </section>
+
+  <section id="stats">
+    <div class="stats-wrap">
+      <div class="section-label">Market opportunity</div>
+      <h2 class="section-title">UAE students are still sitting on high-value idle devices.</h2>
+      <div class="stats-row">
+        <div class="stat-block">
+          <div class="stat-big">83%</div>
+          <div class="stat-desc">of surveyed students said they would use an on-campus resale service</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-big">57%</div>
+          <div class="stat-desc">say data security is the top blocker to selling old phones</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-big">300K+</div>
+          <div class="stat-desc">students enrolled across major UAE higher education institutions</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-big">AED 628M</div>
+          <div class="stat-desc">estimated addressable e-waste resale market in the UAE</div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 Revive. HCT — BUS 2403 Team 8.</span>
-    <span style="color:rgba(245,240,232,0.4);">Built with <span>♻</span> in the UAE</span>
-  </div>
-</footer>
+  </section>
 
-<script>
-  const models = {
-    iphone: ['iPhone 11','iPhone 12','iPhone 12 Pro','iPhone 13','iPhone 13 Pro','iPhone 14','iPhone 14 Pro','iPhone 15'],
-    samsung: ['Galaxy S21','Galaxy S22','Galaxy S23','Galaxy A53','Galaxy A54','Galaxy Z Flip 4','Galaxy Z Flip 5'],
-    other: ['Google Pixel 6','Google Pixel 7','OnePlus 10','OnePlus 11','Xiaomi 12','Xiaomi 13','Other']
-  };
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="nav-logo" href="#hero">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8L2 12c0-5.52 4.48-10 10-10 2.76 0 5.26 1.12 7.07 2.93L21 3v4h-4l.65-.65zM12 20c4.42 0 7.99-3.58 7.99-8L22 12c0 5.52-4.48 10-10 10-2.76 0-5.26-1.12-7.07-2.93L3 21v-4h4l-.65.65A7.958 7.958 0 0012 20z"/></svg>
+          </div>
+          Revive
+        </a>
+        <p>Standalone student e-waste resale app for the UAE. In-app concierge, campus scheduling, and certified data destruction workflow.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#quote">Instant quote</a></li>
+          <li><a href="#app">Concierge + tracker</a></li>
+          <li><a href="#meetings">Campus map booking</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#app">In-app support chat</a></li>
+          <li><a href="mailto:hello@revive.ae">hello@revive.ae</a></li>
+          <li><a href="mailto:ops@revive.ae">ops@revive.ae</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>2026 Revive. HCT BUS 2403 Team 8.</span>
+      <span>Built for <strong>secure campus resale</strong> in the UAE.</span>
+    </div>
+  </footer>
 
-  const prices = {
-    iphone: { new: 520, good: 420, fair: 200, broken: 70 },
-    samsung: { new: 380, good: 300, fair: 150, broken: 55 },
-    other: { new: 250, good: 190, fair: 100, broken: 40 }
-  };
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const models = {
+      iphone: ['iPhone 11', 'iPhone 12', 'iPhone 12 Pro', 'iPhone 13', 'iPhone 13 Pro', 'iPhone 14', 'iPhone 14 Pro', 'iPhone 15'],
+      samsung: ['Galaxy S21', 'Galaxy S22', 'Galaxy S23', 'Galaxy A53', 'Galaxy A54', 'Galaxy Z Flip 4', 'Galaxy Z Flip 5'],
+      other: ['Google Pixel 6', 'Google Pixel 7', 'OnePlus 10', 'OnePlus 11', 'Xiaomi 12', 'Xiaomi 13', 'Other Android']
+    };
 
-  function updateModels() {
-    const brand = document.getElementById('brand').value;
-    const sel = document.getElementById('model');
-    sel.innerHTML = '<option value="">Select model...</option>';
-    if (brand && models[brand]) {
-      models[brand].forEach(m => {
-        const o = document.createElement('option');
-        o.value = m; o.textContent = m;
-        sel.appendChild(o);
+    const prices = {
+      iphone: { new: 520, good: 430, fair: 205, broken: 70 },
+      samsung: { new: 390, good: 305, fair: 155, broken: 55 },
+      other: { new: 260, good: 195, fair: 102, broken: 40 }
+    };
+
+    const storageAdjustments = { 64: 0, 128: 20, 256: 55, 512: 95 };
+    const batteryAdjustments = { excellent: 18, good: 0, weak: -28 };
+
+    const campuses = {
+      'hct-abudhabi': {
+        name: 'HCT Abu Dhabi',
+        coords: [24.4406, 54.3949],
+        points: [
+          { name: 'Main Gate Security Booth', coords: [24.4411, 54.3957] },
+          { name: 'Student Center Entrance', coords: [24.4397, 54.3938] }
+        ]
+      },
+      'aus-sharjah': {
+        name: 'AUS Sharjah',
+        coords: [25.3093, 55.4906],
+        points: [
+          { name: 'Main Library Gate', coords: [25.3086, 55.4918] },
+          { name: 'Student Center Plaza', coords: [25.3101, 55.4892] }
+        ]
+      },
+      'uaeu-alain': {
+        name: 'UAEU Al Ain',
+        coords: [24.1984, 55.6762],
+        points: [
+          { name: 'Crescent Building Lobby', coords: [24.1988, 55.6751] },
+          { name: 'Library Forecourt', coords: [24.1977, 55.6774] }
+        ]
+      },
+      'ku-abudhabi': {
+        name: 'Khalifa University Abu Dhabi',
+        coords: [24.4424, 54.4294],
+        points: [
+          { name: 'Innovation Hall Entry', coords: [24.443, 54.4302] },
+          { name: 'Main Visitor Parking', coords: [24.4415, 54.4286] }
+        ]
+      }
+    };
+
+    const STORAGE_KEYS = {
+      quote: 'revive_mvp_quote',
+      booking: 'revive_mvp_booking',
+      chat: 'revive_mvp_chat',
+      tracker: 'revive_mvp_tracker'
+    };
+
+    const trackerRank = { quoted: 1, booked: 2, assigned: 3, completed: 4 };
+
+    const state = {
+      latestQuote: null,
+      booking: null,
+      trackerStep: null,
+      chatMessages: []
+    };
+
+    let map = null;
+    let campusMarkers = {};
+    let meetingPointLayer = null;
+    let meetingPointMarkers = [];
+    const API_BASE = '/api';
+    let autonomousTimers = [];
+
+    async function apiRequest(path, payload) {
+      const response = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok) {
+        const message = data && data.error ? data.error : 'Backend request failed';
+        throw new Error(message);
+      }
+
+      return data;
+    }
+
+    function updateModels() {
+      const brand = document.getElementById('brand').value;
+      const modelSelect = document.getElementById('model');
+      modelSelect.innerHTML = '<option value="">Select model...</option>';
+
+      if (!brand || !models[brand]) {
+        return;
+      }
+
+      models[brand].forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        modelSelect.appendChild(option);
       });
     }
-  }
 
-  function calcQuote() {
-    const brand = document.getElementById('brand').value;
-    const model = document.getElementById('model').value;
-    const condition = document.getElementById('condition').value;
-    const result = document.getElementById('quote-result');
-    const priceEl = document.getElementById('qr-price');
-    const subEl = document.getElementById('qr-sub');
-    const waLink = document.getElementById('wa-link');
-
-    if (!brand || !model || !condition) {
-      alert('Please select your brand, model, and condition.');
-      return;
+    function formatMoney(value) {
+      return 'AED ' + value;
     }
 
-    const price = prices[brand][condition];
-    priceEl.textContent = 'AED ' + price;
-    subEl.textContent = model + ' · Cash on the spot · Data wiped & certified ✓';
-    result.style.display = 'block';
+    async function calculateQuote() {
+      const brand = document.getElementById('brand').value;
+      const model = document.getElementById('model').value;
+      const condition = document.getElementById('condition').value;
+      const storage = document.getElementById('storage').value;
+      const battery = document.getElementById('battery').value;
+      const notes = document.getElementById('device-notes').value.trim();
 
-    const msg = encodeURIComponent('Hi Revive! I want to sell my ' + model + ' (' + condition + ' condition). I saw the quote of AED ' + price + ' on the website.');
-    waLink.href = 'https://wa.me/971000000000?text=' + msg;
-
-    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  // Scroll-triggered fade ins for sections
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'translateY(0)';
+      if (!brand || !model || !condition || !storage || !battery) {
+        alert('Please complete all required quote fields.');
+        return;
       }
-    });
-  }, { threshold: 0.15 });
 
-  document.querySelectorAll('.step-card, .why-card, .stat-block').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    observer.observe(el);
-  });
-</script>
+      let quote;
+      let usedLocalFallback = false;
+
+      try {
+        const response = await apiRequest('/quote', {
+          brand,
+          model,
+          condition,
+          storage,
+          battery,
+          notes
+        });
+        quote = response.quote;
+      } catch (_error) {
+        // Keep the app usable if the API is temporarily unavailable.
+        const base = prices[brand][condition];
+        const storageBonus = storageAdjustments[storage];
+        const batteryBonus = batteryAdjustments[battery];
+        const price = Math.max(30, base + storageBonus + batteryBonus);
+
+        quote = {
+          quoteId: 'LOCAL-' + Date.now().toString().slice(-7),
+          brand,
+          model,
+          condition,
+          storage,
+          battery,
+          notes,
+          price,
+          lockedUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          createdAt: new Date().toISOString()
+        };
+        usedLocalFallback = true;
+      }
+
+      state.latestQuote = quote;
+
+      localStorage.setItem(STORAGE_KEYS.quote, JSON.stringify(state.latestQuote));
+
+      document.getElementById('quote-price').textContent = formatMoney(state.latestQuote.price);
+      document.getElementById('quote-sub').textContent = model + ' (' + condition + ', ' + storage + ' GB) - quote locked for 24 hours.';
+      document.getElementById('quote-result').style.display = 'block';
+
+      if (!state.trackerStep || trackerRank[state.trackerStep] < trackerRank.quoted) {
+        setTrackerStep('quoted');
+      } else {
+        renderTracker();
+      }
+
+      const sourceText = usedLocalFallback ? ' (offline fallback mode)' : '';
+      addMessage('system', 'Quote created for ' + model + ': ' + formatMoney(state.latestQuote.price) + sourceText + '. You can now book a campus meeting in-app.');
+      syncTrackerSummary();
+      document.getElementById('quote-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function getTrackerBadge(step) {
+      if (!step) return 'Not started';
+      if (step === 'quoted') return 'Quoted';
+      if (step === 'booked') return 'Booked';
+      if (step === 'assigned') return 'Assigned';
+      return 'Completed';
+    }
+
+    function setTrackerStep(step) {
+      state.trackerStep = step;
+      localStorage.setItem(STORAGE_KEYS.tracker, step);
+      renderTracker();
+    }
+
+    function clearAutonomousTimers() {
+      autonomousTimers.forEach((timer) => {
+        window.clearTimeout(timer);
+      });
+      autonomousTimers = [];
+    }
+
+    function scheduleAutonomousProgress() {
+      clearAutonomousTimers();
+
+      if (!state.booking || !state.booking.bookingId) {
+        return;
+      }
+
+      const activeBookingId = state.booking.bookingId;
+
+      autonomousTimers.push(window.setTimeout(() => {
+        const stillActive = state.booking && state.booking.bookingId === activeBookingId;
+        if (!stillActive) {
+          return;
+        }
+
+        if (state.trackerStep === 'booked') {
+          setTrackerStep('assigned');
+          addMessage('system', 'Autonomous dispatch: technician assigned automatically for booking ' + activeBookingId + '.');
+        }
+      }, 4500));
+
+      autonomousTimers.push(window.setTimeout(() => {
+        const stillActive = state.booking && state.booking.bookingId === activeBookingId;
+        if (!stillActive) {
+          return;
+        }
+
+        if (state.trackerStep === 'booked') {
+          setTrackerStep('assigned');
+          addMessage('system', 'Autonomous dispatch: technician arrived and started secure wipe workflow.');
+        }
+
+        if (state.trackerStep === 'assigned') {
+          setTrackerStep('completed');
+          addMessage('system', 'Autonomous completion: secure wipe finished, payout confirmed, and certificate sent to ' + state.booking.email + '.');
+        }
+      }, 12000));
+    }
+
+    function applySuggestedStep(suggestedStep) {
+      const step = typeof suggestedStep === 'string' ? suggestedStep.toLowerCase() : '';
+      if (!trackerRank[step]) {
+        return;
+      }
+
+      if (step === 'quoted' && !state.latestQuote) {
+        return;
+      }
+
+      if (step !== 'quoted' && !state.booking) {
+        return;
+      }
+
+      if (state.trackerStep && trackerRank[step] <= trackerRank[state.trackerStep]) {
+        return;
+      }
+
+      setTrackerStep(step);
+
+      if (step === 'booked' || step === 'assigned') {
+        scheduleAutonomousProgress();
+      }
+    }
+
+    function syncTrackerSummary() {
+      const summary = document.getElementById('tracker-summary');
+
+      if (!state.latestQuote) {
+        summary.textContent = 'Create your quote to start an active Revive request.';
+        return;
+      }
+
+      let message = 'Quote ready for ' + state.latestQuote.model + ': ' + formatMoney(state.latestQuote.price) + '.';
+
+      if (state.booking) {
+        message += ' Meeting set at ' + state.booking.pointName + ' (' + campuses[state.booking.campus].name + ') on ' + state.booking.date + ' at ' + state.booking.time + '.';
+      }
+
+      if (state.trackerStep === 'assigned') {
+        message += ' Technician assigned and en route.';
+      }
+
+      if (state.trackerStep === 'completed') {
+        message += ' Request completed. Certificate sent to ' + state.booking.email + '.';
+      }
+
+      summary.textContent = message;
+    }
+
+    function renderTracker() {
+      const badge = document.getElementById('tracker-badge');
+      badge.textContent = getTrackerBadge(state.trackerStep);
+
+      document.querySelectorAll('.tracker-step').forEach((item) => {
+        const step = item.dataset.step;
+        const stepIsActive = state.trackerStep && trackerRank[step] <= trackerRank[state.trackerStep];
+        item.classList.toggle('active', Boolean(stepIsActive));
+        item.classList.toggle('current', state.trackerStep === step);
+      });
+
+      const canAssign = state.trackerStep === 'booked';
+      const canComplete = state.trackerStep === 'assigned';
+      document.getElementById('assign-tech-btn').disabled = !canAssign;
+      document.getElementById('complete-request-btn').disabled = !canComplete;
+
+      const bookingCard = document.getElementById('booking-card');
+      if (state.booking) {
+        bookingCard.style.display = 'block';
+        bookingCard.innerHTML =
+          '<strong>Booking ' + state.booking.bookingId + '</strong><br />' +
+          campuses[state.booking.campus].name + ' - ' + state.booking.pointName + '<br />' +
+          state.booking.date + ' at ' + state.booking.time + '<br />' +
+          'Contact: ' + state.booking.fullName + ' / ' + state.booking.phone;
+      } else {
+        bookingCard.style.display = 'none';
+      }
+
+      syncTrackerSummary();
+    }
+
+    function addMessage(role, text) {
+      state.chatMessages.push({ role, text, ts: new Date().toISOString() });
+      if (state.chatMessages.length > 120) {
+        state.chatMessages = state.chatMessages.slice(-120);
+      }
+      localStorage.setItem(STORAGE_KEYS.chat, JSON.stringify(state.chatMessages));
+      renderChat();
+    }
+
+    function formatTime(isoString) {
+      const d = new Date(isoString);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderChat() {
+      const log = document.getElementById('chat-log');
+      log.innerHTML = '';
+      state.chatMessages.forEach((msg) => {
+        const bubble = document.createElement('div');
+        bubble.className = 'chat-bubble ' + msg.role;
+        bubble.textContent = msg.text;
+
+        const time = document.createElement('span');
+        time.className = 'chat-time';
+        time.textContent = formatTime(msg.ts);
+        bubble.appendChild(time);
+
+        log.appendChild(bubble);
+      });
+
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function buildAssistantReply(input) {
+      const text = input.toLowerCase();
+
+      if (text.includes('quote') || text.includes('price') || text.includes('worth')) {
+        if (state.latestQuote) {
+          return 'Your current quote is ' + formatMoney(state.latestQuote.price) + ' for ' + state.latestQuote.model + '. You can now lock this by booking a campus meeting.';
+        }
+        return 'Open the quote module and select your device details. I will instantly add your estimate to the tracker.';
+      }
+
+      if (text.includes('book') || text.includes('meeting') || text.includes('campus') || text.includes('map')) {
+        if (!state.latestQuote) {
+          return 'Create your quote first, then I can guide you through booking by campus and map point.';
+        }
+        return 'Go to Campus Meetings, choose your campus and point, then submit. I will update your tracker to Booked automatically.';
+      }
+
+      if (text.includes('wipe') || text.includes('data') || text.includes('secure')) {
+        return 'Revive follows a NIST 800-88 aligned wipe workflow. Once completed, we send your destruction certificate to your selected email.';
+      }
+
+      if (text.includes('status') || text.includes('track')) {
+        if (!state.trackerStep) {
+          return 'No active request yet. Create a quote to begin.';
+        }
+        return 'Current status: ' + getTrackerBadge(state.trackerStep) + '. Check the tracker panel for detailed steps.';
+      }
+
+      return 'I can help with quote setup, meeting booking, wipe certificate questions, and request status. What do you want to do next?';
+    }
+
+    async function handleChatSend(text) {
+      addMessage('user', text);
+
+      try {
+        const response = await apiRequest('/chat', {
+          message: text,
+          latestQuote: state.latestQuote,
+          trackerStep: state.trackerStep,
+          booking: state.booking
+        });
+        const reply = response.reply || buildAssistantReply(text);
+        addMessage('assistant', reply);
+
+        if (response.suggestedStep) {
+          applySuggestedStep(response.suggestedStep);
+        }
+      } catch (_error) {
+        window.setTimeout(() => {
+          const response = buildAssistantReply(text);
+          addMessage('assistant', response);
+        }, 250);
+      }
+    }
+
+    function bookingId() {
+      const stamp = Date.now().toString().slice(-6);
+      return 'RV-' + stamp;
+    }
+
+    function refreshMeetingPoints(campusKey) {
+      const pointSelect = document.getElementById('meeting-point');
+      pointSelect.innerHTML = '<option value="">Select point...</option>';
+
+      if (!campusKey || !campuses[campusKey]) {
+        return;
+      }
+
+      campuses[campusKey].points.forEach((point, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = point.name;
+        pointSelect.appendChild(option);
+      });
+
+      renderMeetingPointsOnMap(campusKey);
+      focusCampus(campusKey);
+    }
+
+    async function createMeetingBooking() {
+      if (!state.latestQuote) {
+        alert('Please generate your quote before booking a meeting.');
+        document.getElementById('quote').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+
+      const fullName = document.getElementById('full-name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const campus = document.getElementById('campus').value;
+      const pointIndex = document.getElementById('meeting-point').value;
+      const date = document.getElementById('meeting-date').value;
+      const time = document.getElementById('meeting-time').value;
+      const notes = document.getElementById('meeting-notes').value.trim();
+
+      if (!fullName || !phone || !email || !campus || pointIndex === '' || !date || !time) {
+        alert('Please complete all required meeting fields.');
+        return;
+      }
+
+      const point = campuses[campus].points[Number(pointIndex)];
+
+      let bookingFromApi;
+      let usedLocalFallback = false;
+
+      try {
+        const response = await apiRequest('/bookings', {
+          fullName,
+          phone,
+          email,
+          campus,
+          pointName: point.name,
+          date,
+          time,
+          notes,
+          quotePrice: state.latestQuote.price
+        });
+        bookingFromApi = response.booking;
+      } catch (_error) {
+        bookingFromApi = {
+          bookingId: bookingId(),
+          fullName,
+          phone,
+          email,
+          campus,
+          pointName: point.name,
+          date,
+          time,
+          notes,
+          quotePrice: state.latestQuote.price,
+          status: 'booked',
+          createdAt: new Date().toISOString()
+        };
+        usedLocalFallback = true;
+      }
+
+      state.booking = {
+        ...bookingFromApi,
+        pointCoords: point.coords
+      };
+
+      localStorage.setItem(STORAGE_KEYS.booking, JSON.stringify(state.booking));
+      if (!state.trackerStep || trackerRank[state.trackerStep] < trackerRank.booked) {
+        setTrackerStep('booked');
+      } else {
+        renderTracker();
+      }
+
+      const confirm = document.getElementById('meeting-confirm');
+      confirm.style.display = 'block';
+      confirm.innerHTML =
+        '<strong>Booking created: ' + state.booking.bookingId + '</strong><br />' +
+        campuses[campus].name + ' - ' + point.name + '<br />' +
+        date + ' at ' + time + '<br />' +
+        'Quote locked at ' + formatMoney(state.latestQuote.price) + '. Certificate will be sent to ' + email + '.';
+
+      const sourceText = usedLocalFallback ? ' (offline fallback mode)' : '';
+      addMessage('system', 'Meeting booked at ' + campuses[campus].name + ' (' + point.name + ') for ' + date + ' at ' + time + '. Booking ID: ' + state.booking.bookingId + sourceText + '.');
+      scheduleAutonomousProgress();
+
+      if (map) {
+        map.flyTo(point.coords, 16, { duration: 0.8 });
+      }
+    }
+
+    function assignTechnician() {
+      if (!state.booking) {
+        alert('Book a meeting first to assign a technician.');
+        return;
+      }
+
+      if (state.trackerStep !== 'booked') {
+        return;
+      }
+
+      clearAutonomousTimers();
+      setTrackerStep('assigned');
+      addMessage('system', 'Technician assigned for booking ' + state.booking.bookingId + '. You will get an in-app arrival update before meetup time.');
+      scheduleAutonomousProgress();
+    }
+
+    function completeRequest() {
+      if (state.trackerStep !== 'assigned') {
+        return;
+      }
+
+      clearAutonomousTimers();
+      setTrackerStep('completed');
+      addMessage('system', 'Request completed. Data wipe certificate dispatched to ' + state.booking.email + '.');
+    }
+
+    function focusCampus(campusKey) {
+      if (!map || !campuses[campusKey]) {
+        return;
+      }
+
+      map.flyTo(campuses[campusKey].coords, 14, { duration: 0.7 });
+      const marker = campusMarkers[campusKey];
+      if (marker) {
+        marker.openPopup();
+      }
+    }
+
+    function renderMeetingPointsOnMap(campusKey) {
+      if (!map || !meetingPointLayer) {
+        return;
+      }
+
+      meetingPointLayer.clearLayers();
+      meetingPointMarkers = [];
+
+      if (!campuses[campusKey]) {
+        return;
+      }
+
+      campuses[campusKey].points.forEach((point) => {
+        const marker = L.circleMarker(point.coords, {
+          radius: 7,
+          color: '#1b4f86',
+          weight: 2,
+          fillColor: '#286cb0',
+          fillOpacity: 0.95
+        }).addTo(meetingPointLayer).bindPopup('<strong>' + point.name + '</strong><br />Recommended meetup point');
+        meetingPointMarkers.push(marker);
+      });
+    }
+
+    function initMap() {
+      if (typeof L === 'undefined') {
+        document.getElementById('meeting-map').innerHTML = '<div style="padding:20px;color:#5f6862;font-size:14px;">Map failed to load. Please check your internet connection.</div>';
+        return;
+      }
+
+      map = L.map('meeting-map', { zoomControl: true, scrollWheelZoom: false }).setView([24.44, 54.43], 7);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      meetingPointLayer = L.layerGroup().addTo(map);
+
+      const bounds = [];
+
+      Object.entries(campuses).forEach(([key, campus]) => {
+        const marker = L.marker(campus.coords).addTo(map).bindPopup('<strong>' + campus.name + '</strong>');
+        marker.on('click', () => {
+          document.getElementById('campus').value = key;
+          refreshMeetingPoints(key);
+        });
+        campusMarkers[key] = marker;
+        bounds.push(campus.coords);
+      });
+
+      if (bounds.length) {
+        map.fitBounds(bounds, { padding: [34, 34] });
+      }
+    }
+
+    function safeParse(value) {
+      try {
+        return JSON.parse(value);
+      } catch (_err) {
+        return null;
+      }
+    }
+
+    function loadState() {
+      state.latestQuote = safeParse(localStorage.getItem(STORAGE_KEYS.quote));
+      state.booking = safeParse(localStorage.getItem(STORAGE_KEYS.booking));
+      state.trackerStep = localStorage.getItem(STORAGE_KEYS.tracker);
+      const savedChat = safeParse(localStorage.getItem(STORAGE_KEYS.chat));
+
+      if (Array.isArray(savedChat) && savedChat.length > 0) {
+        state.chatMessages = savedChat;
+      } else {
+        state.chatMessages = [
+          {
+            role: 'assistant',
+            text: 'Welcome to Revive Concierge. I can help you quote, schedule, and track your device sale inside this app.',
+            ts: new Date().toISOString()
+          }
+        ];
+      }
+
+      if (!state.trackerStep) {
+        if (state.booking) {
+          state.trackerStep = 'booked';
+        } else if (state.latestQuote) {
+          state.trackerStep = 'quoted';
+        }
+      }
+    }
+
+    function hydrateUI() {
+      if (state.latestQuote) {
+        document.getElementById('brand').value = state.latestQuote.brand;
+        updateModels();
+        document.getElementById('model').value = state.latestQuote.model;
+        document.getElementById('condition').value = state.latestQuote.condition;
+        document.getElementById('storage').value = String(state.latestQuote.storage);
+        document.getElementById('battery').value = state.latestQuote.battery;
+        document.getElementById('device-notes').value = state.latestQuote.notes || '';
+        document.getElementById('quote-price').textContent = formatMoney(state.latestQuote.price);
+        document.getElementById('quote-sub').textContent = state.latestQuote.model + ' (' + state.latestQuote.condition + ', ' + state.latestQuote.storage + ' GB) - quote restored from your last session.';
+        document.getElementById('quote-result').style.display = 'block';
+      }
+
+      if (state.booking) {
+        document.getElementById('full-name').value = state.booking.fullName;
+        document.getElementById('phone').value = state.booking.phone;
+        document.getElementById('email').value = state.booking.email;
+        document.getElementById('campus').value = state.booking.campus;
+        refreshMeetingPoints(state.booking.campus);
+
+        const pointIndex = campuses[state.booking.campus].points.findIndex((p) => p.name === state.booking.pointName);
+        if (pointIndex >= 0) {
+          document.getElementById('meeting-point').value = String(pointIndex);
+        }
+
+        document.getElementById('meeting-date').value = state.booking.date;
+        document.getElementById('meeting-time').value = state.booking.time;
+        document.getElementById('meeting-notes').value = state.booking.notes || '';
+
+        const confirm = document.getElementById('meeting-confirm');
+        confirm.style.display = 'block';
+        confirm.innerHTML =
+          '<strong>Booking restored: ' + state.booking.bookingId + '</strong><br />' +
+          campuses[state.booking.campus].name + ' - ' + state.booking.pointName + '<br />' +
+          state.booking.date + ' at ' + state.booking.time + '<br />' +
+          'Quote locked at ' + formatMoney(state.booking.quotePrice) + '.';
+
+        if (map) {
+          map.flyTo(state.booking.pointCoords, 15, { duration: 0.8 });
+        }
+      }
+
+      renderTracker();
+      renderChat();
+
+      if (state.booking && (state.trackerStep === 'booked' || state.trackerStep === 'assigned')) {
+        scheduleAutonomousProgress();
+      }
+    }
+
+    function initRevealObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.step-card, .why-card, .stat-block').forEach((el) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
+        observer.observe(el);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      updateModels();
+      loadState();
+      hydrateUI();
+      initRevealObserver();
+
+      document.getElementById('brand').addEventListener('change', updateModels);
+
+      document.getElementById('quote-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        calculateQuote();
+      });
+
+      document.querySelectorAll('.quick-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          handleChatSend(button.dataset.message);
+        });
+      });
+
+      document.getElementById('chat-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) {
+          return;
+        }
+        handleChatSend(text);
+        input.value = '';
+      });
+
+      document.getElementById('campus').addEventListener('change', (event) => {
+        refreshMeetingPoints(event.target.value);
+      });
+
+      document.getElementById('meeting-point').addEventListener('change', (event) => {
+        const campusKey = document.getElementById('campus').value;
+        if (!campusKey || !map || event.target.value === '') {
+          return;
+        }
+
+        const point = campuses[campusKey].points[Number(event.target.value)];
+        map.flyTo(point.coords, 16, { duration: 0.7 });
+
+        const marker = meetingPointMarkers[Number(event.target.value)];
+        if (marker) {
+          marker.openPopup();
+        }
+      });
+
+      document.getElementById('meeting-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        createMeetingBooking();
+      });
+
+      document.getElementById('assign-tech-btn').addEventListener('click', assignTechnician);
+      document.getElementById('complete-request-btn').addEventListener('click', completeRequest);
+    });
+  </script>
 </body>
 </html>
